@@ -1,14 +1,18 @@
 const path = require('path');
 
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+
 const isProduction = process.env.NODE_ENV === 'production';
 
-module.exports = {
+let config = {
   mode: isProduction ? 'production' : 'development',
+  devtool: isProduction ? "" : "cheap-module-eval-source-map",
   entry: './src/app.js',
 
   output: {
     path: path.resolve('./dist'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    publicPath: '/dist/'
   },
 
   module: {
@@ -25,5 +29,11 @@ module.exports = {
         use: ['babel-loader']
       }
     ]
-  }
+  },
 };
+
+if (isProduction) {
+  config.plugins.push(new UglifyJSPlugin())
+}
+
+module.exports = config

@@ -3,6 +3,7 @@
     [
       "env",
       {
+        "modules": false, // allows lazy-loading
         "targets": {
           "browsers": [
             "last 2 versions",
@@ -11,5 +12,6 @@
         }
       }
     ]
-  ]
+  ],
+  "plugins": ["syntax-dynamic-import"]
 }
