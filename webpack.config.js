@@ -3,6 +3,7 @@ const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const isProduction = process.env.NODE_ENV === "production";
 const cssLoaders = [
@@ -23,14 +24,17 @@ const cssLoaders = [
 let config = {
   mode: isProduction ? "production" : "development",
   devtool: isProduction ? "" : "cheap-module-eval-source-map",
+  devServer: {
+    contentBase: path.resolve('./public')
+  },
   entry: {
     app: ["./src/app.js", "./src/app.scss"]
   },
 
   output: {
-    path: path.resolve("./dist"),
+    path: path.resolve("./public"),
     filename: isProduction ? "[name].[chunkhash].js" : "[name].js",
-    publicPath: "/dist/"
+    publicPath: "/"
   },
 
   resolve: {
@@ -44,7 +48,8 @@ let config = {
       filename: isProduction ? "[name].[hash].css" : "[name].css",
       chunkFilename: "[id].css",
       disable: !isProduction
-    })
+    }),
+    new HtmlWebpackPlugin()
   ],
 
   module: {
