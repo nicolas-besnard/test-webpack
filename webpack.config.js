@@ -1,6 +1,8 @@
 const path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ManifestPlugin = require('webpack-manifest-plugin');
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 
 const isProduction = process.env.NODE_ENV === 'production';
 const cssLoaders = [
@@ -22,20 +24,18 @@ let config = {
   mode: isProduction ? 'production' : 'development',
   devtool: isProduction ? '' : 'cheap-module-eval-source-map',
   entry: {
-    app: './src/app.js'
+    app: ['./src/app.js', './src/app.scss']
   },
 
   output: {
     path: path.resolve('./dist'),
-    filename: '[name].js',
+    filename: isProduction ? '[name].[chunkhash].js' : '[name].js',
     publicPath: '/dist/'
   },
 
   plugins: [
     new MiniCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
-      filename: "[name].css",
+      filename: isProduction ? "[name].[hash].css" : "[name].css",
       chunkFilename: "[id].css",
       disable: !isProduction
     })
@@ -63,6 +63,11 @@ let config = {
 
 if (isProduction) {
   config.plugins.push(new UglifyJSPlugin());
+  config.plugins.push(new ManifestPlugin());
+  config.plugins.push(
+    new CleanWebpackPlugin([
+      path.resolve("dist")
+    ]));
 }
 
 module.exports = config;
