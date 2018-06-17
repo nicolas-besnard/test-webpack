@@ -1,10 +1,11 @@
 const path = require('path');
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const isProduction = process.env.NODE_ENV === 'production';
 const cssLoaders = [
-  'style-loader',
-  { loader: 'css-loader', options: { importLoaders: 1 } },
+  isProduction ?  MiniCssExtractPlugin.loader : 'style-loader',
+  { loader: 'css-loader', options: { importLoaders: 1, minimize: isProduction } },
   {
     loader: 'postcss-loader',
     options: {
@@ -20,13 +21,25 @@ const cssLoaders = [
 let config = {
   mode: isProduction ? 'production' : 'development',
   devtool: isProduction ? '' : 'cheap-module-eval-source-map',
-  entry: './src/app.js',
+  entry: {
+    app: './src/app.js'
+  },
 
   output: {
     path: path.resolve('./dist'),
-    filename: 'bundle.js',
+    filename: '[name].js',
     publicPath: '/dist/'
   },
+
+  plugins: [
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
+      filename: "[name].css",
+      chunkFilename: "[id].css",
+      disable: !isProduction
+    })
+  ],
 
   module: {
     rules: [
@@ -40,9 +53,6 @@ let config = {
         //  }
         //}]
         use: ['babel-loader']
-      }, {
-        test: /\.css$/,
-        use: cssLoaders
       }, {
         test: /\.scss$/,
         use: [...cssLoaders, 'sass-loader']
